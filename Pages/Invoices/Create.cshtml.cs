@@ -35,19 +35,28 @@ namespace IdentityApp.Pages.Invoices
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
+            var invoiceCount = Context.Invoice.Count();
 
-            Invoice.CreatorId = UserManager.GetUserId(User);
+            // Limit Invoice count to save costs on Azure SQL DB
+            if (invoiceCount == 10)
+            {
+                return RedirectToPage("./Index");
+            }
+            else
+            {
+                Invoice.CreatorId = UserManager.GetUserId(User);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
-                User, Invoice, InvoiceOperations.Create);
+                var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                    User, Invoice, InvoiceOperations.Create);
 
-            if (isAuthorized.Succeeded == false)
-                return Forbid();
+                if (isAuthorized.Succeeded == false)
+                    return Forbid();
 
-            Context.Invoice.Add(Invoice);
-            await Context.SaveChangesAsync();
+                Context.Invoice.Add(Invoice);
+                await Context.SaveChangesAsync();
 
-            return RedirectToPage("./Index");
+                return RedirectToPage("./Index");
+            }
         }
     }
 }
