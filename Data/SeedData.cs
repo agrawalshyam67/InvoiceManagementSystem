@@ -15,6 +15,9 @@ namespace IdentityApp.Data
             using(var context = new ApplicationDbContext(
                 serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>()))
             {
+                // Accountant
+                await EnsureUser(serviceProvider, "accountant@demo.com", password);
+
                 // manager
                 var managerUid = await EnsureUser(serviceProvider, "manager@demo.com", password);
                 await EnsureRole(serviceProvider, managerUid, Constants.InvoiceManagersRole);
